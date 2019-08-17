@@ -74,9 +74,15 @@ class Products with ChangeNotifier {
   //   notifyListeners();
   // }
 
-  Future<void> fetchAndSetProducts() async {
+  Future<void> fetchAndSetProducts([bool filterByUser = false]) async {
+    // So that the user's specific products are shown on the manage products page, but all products are shown on the shop page.
+    final filterString =
+        filterByUser ? 'orderBy="creatorId"&equalTo="$userId"' : '';
+
     var url =
-        'https://shop-app-f376b.firebaseio.com/products.json?auth=$authToken';
+        'https://shop-app-f376b.firebaseio.com/products.json?auth=$authToken&$filterString';
+    // var url =
+    //     'https://shop-app-f376b.firebaseio.com/products.json?auth=$authToken&orderBy="creatorId"&equalTo="$userId"';
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
@@ -119,6 +125,7 @@ class Products with ChangeNotifier {
           'description': product.description,
           'price': product.price,
           'imageUrl': product.imageUrl,
+          'creatorId': userId,
         }),
       );
       final newProduct = Product(
